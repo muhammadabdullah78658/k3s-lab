@@ -1,0 +1,46 @@
+# Café K3s — final project starter file
+# This file has 3 bugs. Find them and fix them!
+# Apply with:  kubectl apply -f cafe.yaml -n cafe
+
+# the menu page
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: menu
+data:
+  index.html: |
+    <h1>Cafe K3s Menu</h1>
+    <p>Chai - 100 Rs</p>
+    <p>Samosa - 60 Rs</p>
+---
+# the fixed address
+apiVersion: v1
+kind: Service
+metadata:
+  name: cafe
+spec:
+  selector: {app: cafe}
+  ports: [{port: 80, targetPort: 8080}]
+---
+# the app
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cafe
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: cafe}
+  template:
+    metadata:
+      labels: {app: caffe}
+    spec:
+      containers:
+      - name: web
+        image: nginx:alpne
+        volumeMounts:
+        - name: menu
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: menu
+        configMap: {name: menu}

@@ -1,0 +1,35 @@
+# Lab step 2 — apply with: kubectl apply -f storage.yaml -n demo
+# the request for disk
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: web-data
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi
+---
+# the app that uses it
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  selector:
+    matchLabels: {app: web}
+  template:
+    metadata:
+      labels: {app: web}
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: web-data

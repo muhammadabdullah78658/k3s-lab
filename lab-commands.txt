@@ -1,0 +1,53 @@
+K3s LAB — COMMANDS (copy one line at a time)
+Run these inside the k3s-lab folder.
+
+=== STEP 1: Install K3s and run your first app ===
+curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
+kubectl get nodes
+kubectl get pods -A
+kubectl create namespace demo
+kubectl create deployment hello --image=nginx:alpine -n demo
+kubectl get pods -n demo -o wide
+
+(Optional: YAML way)
+kubectl apply -f hello.yml
+kubectl get pods
+
+=== STEP 2: Add storage ===
+kubectl apply -f storage.yaml -n demo
+kubectl get pvc,pv -n demo
+kubectl get pods -n demo
+
+=== STEP 3: Open it with Ingress ===
+kubectl apply -f expose.yaml -n demo
+kubectl get svc,ingress -n demo
+kubectl exec -n demo deploy/web -- sh -c 'echo "Hello from K3s" > /usr/share/nginx/html/index.html'
+ip a
+curl http://<VM-IP>
+kubectl delete pod -n demo -l app=web
+kubectl get pods -n demo
+curl http://<VM-IP>
+
+=== STEP 4: Scale, break it, watch it heal ===
+kubectl scale deployment hello --replicas=3 -n demo
+kubectl get pods -n demo
+kubectl delete pod <hello-pod-name> -n demo
+kubectl get pods -n demo
+kubectl top nodes
+kubectl top pods -n demo
+kubectl logs deploy/web -n demo
+kubectl describe pod -n demo -l app=web
+
+=== CLEAN UP ===
+kubectl delete namespace demo
+
+=== FINAL PROJECT: Café K3s ===
+kubectl create namespace cafe
+kubectl apply -f cafe.yaml -n cafe
+kubectl get pods -n cafe
+kubectl describe pod <name> -n cafe
+kubectl logs <name> -n cafe
+kubectl get endpoints cafe -n cafe
+kubectl edit configmap menu -n cafe
+kubectl rollout restart deployment cafe -n cafe
+kubectl scale deployment cafe --replicas=4 -n cafe
