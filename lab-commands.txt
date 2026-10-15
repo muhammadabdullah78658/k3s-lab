@@ -42,13 +42,3 @@ kubectl describe pod -n demo -l app=web
 === CLEAN UP (do this before the project!) ===
 kubectl delete namespace demo
 
-=== FINAL PROJECT: Café K3s ===
-kubectl create namespace cafe
-kubectl apply -f cafe.yaml -n cafe
-kubectl get pods -n cafe
-kubectl describe pod <name> -n cafe
-kubectl logs <name> -n cafe
-kubectl get endpoints cafe -n cafe
-kubectl edit configmap menu -n cafe
-kubectl rollout restart deployment cafe -n cafe
-kubectl scale deployment cafe --replicas=4 -n cafe
