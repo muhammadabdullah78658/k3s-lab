@@ -1,5 +1,6 @@
 K3s LAB — COMMANDS (copy one line at a time)
 Run these inside the k3s-lab folder.
+REMEMBER: every lab command ends with -n demo
 
 === STEP 1: Install K3s and run your first app ===
 curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
@@ -9,10 +10,6 @@ kubectl create namespace demo
 kubectl create deployment hello --image=nginx:alpine -n demo
 kubectl get pods -n demo -o wide
 
-(Optional: YAML way)
-kubectl apply -f hello.yml
-kubectl get pods
-
 === STEP 2: Add storage ===
 kubectl apply -f storage.yaml -n demo
 kubectl get pvc,pv -n demo
@@ -21,12 +18,16 @@ kubectl get pods -n demo
 === STEP 3: Open it with Ingress ===
 kubectl apply -f expose.yaml -n demo
 kubectl get svc,ingress -n demo
-kubectl exec -n demo deploy/web -- sh -c 'echo "Hello from K3s" > /usr/share/nginx/html/index.html'
 ip a
 curl http://<VM-IP>
+# 403 Forbidden here is NORMAL — the disk is empty. Now write a page:
+kubectl exec -n demo deploy/web -- sh -c 'echo "Hello from K3s" > /usr/share/nginx/html/index.html'
+curl http://<VM-IP>
+# Persistence test: delete the pod, the page stays
 kubectl delete pod -n demo -l app=web
 kubectl get pods -n demo
 curl http://<VM-IP>
+# Browser on your laptop works only if the VM network is Bridged or Host-only
 
 === STEP 4: Scale, break it, watch it heal ===
 kubectl scale deployment hello --replicas=3 -n demo
@@ -38,7 +39,7 @@ kubectl top pods -n demo
 kubectl logs deploy/web -n demo
 kubectl describe pod -n demo -l app=web
 
-=== CLEAN UP ===
+=== CLEAN UP (do this before the project!) ===
 kubectl delete namespace demo
 
 === FINAL PROJECT: Café K3s ===
